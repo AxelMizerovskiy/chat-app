@@ -13,6 +13,7 @@
 using namespace std;
 
 int main(){
+    bool connected = false;
     //create socket (sockets ae just ints, refrences to the commmuncation port)
     int sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -58,7 +59,11 @@ int main(){
         if (bytesRecieved == -1){
             cout << "There was an error getting responce from a server\r\n";
         } else {        
-            // display responce 
+            // display responce
+            if(!connected){
+                connected = true;
+                cout << "Connection with server established!" << "\r\n";
+            } 
             cout << "SERVER> " << string(buf, bytesRecieved) << "\r\n";
         }
     } while(true);

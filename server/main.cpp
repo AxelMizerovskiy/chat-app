@@ -12,7 +12,11 @@
 
 using namespace std;
 
-int main(){ 
+int main(){
+    //number of clients
+    int clientNum = 0;
+
+
     //create socket
     int listening = socket(AF_INET, SOCK_STREAM, 0); // ipv4
 
@@ -51,46 +55,82 @@ int main(){
         return -4;
     }
 
+    clientNum ++; // accepts client and adds them to client pool
+    
+    // accept second client
+    // accept second call
+    sockaddr_in client2;
+    socklen_t clientSize2 = sizeof(client);
+    char host2[NI_MAXHOST]; //buffers
+    char svc2[NI_MAXSERV];
+
+    int clientSocket2 = accept(listening, (sockaddr*)&client2, &clientSize2);
+
+    if (clientSocket2 == -1){
+        cerr << "Problem with client connecting!";
+        return -4;
+    }
+    
+    clientNum ++; // accepts second client and adds them
 
     //close listening socket
     close(listening);
 
     memset(host, 0, NI_MAXHOST);
     memset(svc, 0, NI_MAXSERV);
+
+    memset(host2, 0, NI_MAXHOST);
+    memset(svc2, 0, NI_MAXSERV);
     
     
     int result = getnameinfo((sockaddr*)&client, clientSize, host, NI_MAXHOST, svc, NI_MAXSERV, 0);
+    int result2 = getnameinfo((sockaddr*)&client2, clientSize2, host2, NI_MAXHOST, svc2, NI_MAXSERV, 0);
+    
     if(result){
         cout << host << " connected on " << svc << endl; // auto
     } else { 
         inet_ntop(AF_INET, &client.sin_addr, host, NI_MAXHOST); // oposite of inet_pton 
         cout << host << " connected on " << ntohs(client.sin_port) << endl; // manual
     }
+
+    if(result2){
+        cout << host2 << " connected on " << svc2 << endl; //auto
+    } else {
+        inet_ntop(AF_INET, &client2.sin_addr, host2, NI_MAXHOST);
+        cout << host2 << " connected on " << ntohs(client2.sin_port) << endl; //manual
+    }
+
+
     //while receiving- display message and echo message 
     char buf[4096];
+    char buf2[4096];
     while(true){
         //clear buffer 
         memset(buf, 0, 4096);
+        memset(buf2,0, 4096);
         //wait for message
         int bytesRecv = recv(clientSocket, buf, 4096, 0);
-        if (bytesRecv == -1){
+        int bytesRecv2 = recv(clientSocket2, buf2, 4096, 0);
+        if ((bytesRecv == -1) || (bytesRecv2 == -1)){
             cerr << "There was a connection issue" << endl;
             break;
         }
 
-        if (bytesRecv == 0){ 
+        if ((bytesRecv == 0) || (bytesRecv == 0)){ 
             cout << "The client disconnected" << endl;
             break;
         }
 
         //display message
-        cout << "Recieved: " << string(buf, 0, bytesRecv) << endl; 
-        
+        cout << "Recieved from client1: " << string(buf, 0, bytesRecv) << endl; 
+        cout << "Recieved from client2: " << string(buf2, 0, bytesRecv2) << endl;
         //resend message
-        send(clientSocket, buf, bytesRecv + 1, 0); 
+        send(clientSocket2, buf, bytesRecv + 1, 0);
+        send(clientSocket, buf2, bytesRecv + 1, 0); 
     }
     //close socket
     close(clientSocket);
+    close(clientSocket2);
 
     return 0;
 }

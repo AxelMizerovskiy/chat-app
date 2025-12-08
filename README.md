@@ -1,10 +1,16 @@
 # TCP Server-Client Chat App
 
-Currently just has commnication between server and client.
+Currently just has commnication between 2 clients but its synched.
 
-Echos the message user sends and also prints it on server.
+Sends user message to the second user and also prints it on server.
 
-Later on will be between users using server and also key encrypted.
+To fix: 
+-currently the app needs both users to send for messages to update
+-client 1 only receives the first word of client 2's message
+-connection isnt established untilm  both users are attempting to make contact with server
 
-Will be wrapped into a android java app with kotlin with C++ to handle comms.
+To add:
+-Maybe ask the people for their names at the intial contact
+-Later on will be key encrypted.
+-Will be wrapped into a android java app with kotlin with C++ to handle comms.
 
